@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cloud Todo App</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #f0f2f5; padding-top: 50px; }
+        .container { background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 350px; }
+        input { padding: 12px; width: 70%; border: 1px solid #ddd; border-radius: 6px; outline: none; }
+        button { padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        ul { list-style: none; padding: 0; margin-top: 20px; text-align: left; }
+        li { background: #f8f9fa; margin-bottom: 8px; padding: 10px; border-radius: 4px; border-left: 5px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>My Todo List</h2>
+        <input type="text" id="todoInput" placeholder="What needs to be done?">
+        <button onclick="addTodo()">Add</button>
+        <ul id="todoList"></ul>
+    </div>
+
+    <script>
+        // Load existing todos when page opens
+        window.onload = fetchTodos;
+
+        async function fetchTodos() {
+            const res = await fetch('/api/todos');
+            const data = await res.json();
+            displayTodos(data);
+        }
+
+        async function addTodo() {
+            const taskInput = document.getElementById('todoInput');
+            const task = taskInput.value;
+            if(!task) return;
+
+            const res = await fetch('/api/todos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task })
+            });
+            const data = await res.json();
+            displayTodos(data.todos);
+            taskInput.value = '';
+        }
+
+        function displayTodos(todos) {
+            const list = document.getElementById('todoList');
+            list.innerHTML = todos.map(t => `<li>${t}</li>`).join('');
+        }
+    </script>
+</body>
+</html>
